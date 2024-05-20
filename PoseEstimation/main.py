@@ -7,6 +7,7 @@ import mediapipe as mp
 import cv2
 import numpy as np
 import sys
+import autocorrect as ac
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -66,7 +67,7 @@ def semaphore_letter(left_angle, right_angle):
         (315, 135) : "X",
         (135, 90) : "Y",
         (315, 90) : "Z",
-        (0, 0) : "End of Word",
+        (180, 180) : "End of Word",
     }
     if ((right,left) in semaphore):
         letter = semaphore[(right,left)] #Opposite way because the robot faces the human
@@ -79,10 +80,22 @@ def semaphore_letter(left_angle, right_angle):
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
+# create a dictionary based on the words we want to use
+# word maps to frequency
+word_dict = {
+    "dance":0.25,
+    "act":0.25,
+    "hi":0.25,
+    "hello":0.25
+}
+
+# make the autocorrect use our dictionary
+autocorrect = ac.Speller(nlp_data=word_dict)
+
 try:
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 except Exception as e:
     print(f"An error occurred: {e}")
     sys.exit(1)  # Exit with a non-zero status code
@@ -157,15 +170,19 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_color = (0,0,255)
 
             if(arms_extended):
-                if(letter == "Invalid" or letter == "End of Word"):
-                    letter_count = 0
+                if(letter == "Invalid"):
+                    letter_count = 0                   
                 if(previous_letter == letter):
                     letter_count += 1
                 else:
                     letter_count = 0
                 if(letter_count == 50):
                     letter_color = (0,255,0)
-                    written_string += letter
+                    if(letter != "End of Word"):
+                        written_string += letter
+                    else:
+                        # once the word's done being written, run a autocorrecter
+                        written_string = autocorrect(written_string)
                 if(letter_count > 50 and letter_count < 70):
                     letter_color = (0,255,0)
                 if(letter_count >= 70):
