@@ -38,6 +38,7 @@ int XLimit=1;
 int YLimit=2;
 long LeftPosition=0;
 long RightPosition=0;
+bool go = true;
 
 int convCntr = 0;
 boolean motionDetected = false;
@@ -155,6 +156,21 @@ void loop() {
       }
       irrecv.enableIRIn(); // Re-enable receiver
       irrecv.resume(); // Receive the next value
+    }else if(go){
+      //EMILY's test code
+      digitalWrite(Enable, HIGH);
+      AcknowledgeSubRoutine();
+      digitalWrite(Enable, LOW);
+      delay(2000);
+      digitalWrite(Enable, HIGH);
+      HomeSubRoutine();
+      digitalWrite(Enable, LOW);
+      delay(2000);
+      digitalWrite(Enable, HIGH);
+      FUTURE_SubRoutine();
+      HomeSubRoutine();
+      go = false;
+
     }
 
     LThomeVal = digitalRead(LeftHomeSwitch);
