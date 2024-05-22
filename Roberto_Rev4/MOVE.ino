@@ -1,3 +1,5 @@
+#include "global_variables.h"
+
 void MoveSubRoutine() {
 Serial.print("Left arm:");
 Serial.print(LeftMotor.distanceToGo());

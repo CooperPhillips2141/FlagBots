@@ -2,6 +2,8 @@
 //XLimit
 //YLimit
 
+#include "global_variables.h"
+
 void HomeSubRoutine() {
 Serial.println("Homing Both Arms"); 
 

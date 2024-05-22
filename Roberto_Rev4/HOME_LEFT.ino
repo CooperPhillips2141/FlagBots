@@ -1,3 +1,5 @@
+#include "global_variables.h"
+
 void homeLeft() {
   //set lower speed and accel during homing
   LeftMotor.setSpeed(7);
@@ -8,7 +10,7 @@ void homeLeft() {
     //set move based on which arm is to be homed
     //test Left arm
     Serial.println("Started on wedge...");
-    LeftMotor.move(-180*stepsPerDeg);
+    // LeftMotor.move(-180*stepsPerDeg);
     //add in SW debouncing to ensure we find the edge of the ramp
     boolean debounced = false;
     while(!debounced){
@@ -22,7 +24,7 @@ void homeLeft() {
         debounced = true;
         break;
       }
-      LeftMotor.move(-180*stepsPerDeg);
+      // LeftMotor.move(-180*stepsPerDeg);
     }
     
     Serial.println("Limit reached!!");

@@ -1,3 +1,5 @@
+#include "global_variables.h"
+
 void AttentionSubRoutine() {
 Serial.println("Get Attention");
 LeftMotor.moveTo(-180*stepsPerDeg);  

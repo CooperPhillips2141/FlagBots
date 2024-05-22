@@ -1,3 +1,5 @@
+#include "global_variables.h"
+
 void homeLeft() {
   //set lower speed and accel during homing
   LeftMotor.setSpeed(7);

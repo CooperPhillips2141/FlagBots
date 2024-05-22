@@ -1,6 +1,8 @@
 //XLimit
 //YLimit
 
+#include "global_variables.h"
+
 void EndOfWordSubRoutine() {
 
 
@@ -9,6 +11,6 @@ Serial.println("END OF WORD") ;
 LeftMotor.moveTo(233);  //was 250
 RightMotor.moveTo(-233); //was-250
 MoveSubRoutine();
-delay(LetterDelay);
+delay(letterDelay);
 
 }

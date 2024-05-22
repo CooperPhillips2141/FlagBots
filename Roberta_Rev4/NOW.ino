@@ -1,3 +1,5 @@
+#include "global_variables.h"
+
 void NOW_SubRoutine() {
 
  //"N"
@@ -5,21 +7,21 @@ Serial.println("N") ;
 LeftMotor.moveTo(-45*stepsPerDeg);  
 RightMotor.moveTo(45*stepsPerDeg);
 MoveSubRoutine();
-delay(LetterDelay);
+delay(letterDelay);
 
 //"O"
 Serial.println("O");
 LeftMotor.moveTo(-225*stepsPerDeg);  
 RightMotor.moveTo(90*stepsPerDeg);
 MoveSubRoutine();
-delay(LetterDelay);
+delay(letterDelay);
 
 //"W"
 Serial.println("W");
 LeftMotor.moveTo(-90*stepsPerDeg);  
 RightMotor.moveTo(225*stepsPerDeg);
 MoveSubRoutine();
-delay(LetterDelay);
+delay(letterDelay);
 
 EndOfWordSubRoutine();
 

@@ -21,7 +21,7 @@ IRrecv irrecv(RECV_PIN);
 decode_results results;
 IRsend irsend;
 
- 
+#include "global_variables.h"
 #include <AccelStepper.h>
 #include <Wire.h>
 
@@ -31,7 +31,7 @@ String InputChar;
 int MaxSpeed=1000;
 int Speed=100; //was 200
 int var = 0;
-int LetterDelay = 2500; //1500
+int letterDelay = 2500; //1500
 int Acceleration=500; //was 1000
 int JogStepSize =1;
 int XLimit=1;

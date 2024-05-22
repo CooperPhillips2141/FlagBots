@@ -22,13 +22,14 @@ IRsend irsend;
 
 #include <AccelStepper.h>
 #include <Wire.h>
+#include "global_variables.h"
 
 const int stepsPerDeg = 17;     
 String InputChar;
 int MaxSpeed=1000;
 int Speed=100; //was 200
 int var = 0;
-int LetterDelay = 2500; //was1500; 5000 for letter and arm position verification
+int letterDelay = 2500; //was1500; 5000 for letter and arm position verification
 int Acceleration=500; //was 1000
 int JogStepSize =1;
 int XLimit=1;
