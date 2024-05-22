@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import sys
 import autocorrect as ac
+import time
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -69,8 +70,8 @@ def semaphore_letter(left_angle, right_angle):
         (315, 90) : "Z",
         (180, 180) : "End of Word",
     }
-    if ((right,left) in semaphore):
-        letter = semaphore[(right,left)] #Opposite way because the robot faces the human
+    if ((left,right) in semaphore):
+        letter = semaphore[(left,right)] #Opposite way because the robot faces the human - EDIT: now mirroed, not reversed 5/22/24
     else:
         letter = "Invalid"
     return letter
@@ -94,8 +95,8 @@ autocorrect = ac.Speller(nlp_data=word_dict)
 
 try:
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 except Exception as e:
     print(f"An error occurred: {e}")
     sys.exit(1)  # Exit with a non-zero status code
@@ -106,8 +107,14 @@ resy = int(cap.get(4))
 
 #Set up counters for write logic 
 letter_count = 0
+letter_time = time.perf_counter()
 previous_letter = ""
 written_string = ""
+letter_selected = False
+letter_written = False
+
+TIME_TO_SELECT = 2
+TIME_TO_RESET = 0.5
 
 #Video Feed
 with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose: #Set detection and tracking confidence threshholds 
@@ -115,6 +122,7 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
         ret, frame = cap.read()
 
         #Recolor image into RGB format
+        frame = cv2.flip(frame, 1)
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
 
@@ -170,25 +178,33 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_color = (0,0,255)
 
             if(arms_extended):
-                if(letter == "Invalid"):
-                    letter_count = 0                   
-                if(previous_letter == letter):
-                    letter_count += 1
-                else:
-                    letter_count = 0
-                if(letter_count == 50):
-                    letter_color = (0,255,0)
-                    if(letter != "End of Word"):
-                        written_string += letter
+                print(letter_time)
+                if(letter == "Invalid" or previous_letter != letter):
+                    letter_time = time.perf_counter()
+                    letter_selected = False
+                    letter_written = False
+                if(time.perf_counter() - letter_time >= TIME_TO_SELECT):
+                    if(not letter_selected):
+                        letter_color = (0,255,0)
+                        letter_selected = True
+                        if(letter == "End of Word"):
+                            # once the word's done being written, run a autocorrecter
+                            written_string = autocorrect(written_string)
+                        else:
+                            written_string += letter
+                            letter_written = True
                     else:
-                        # once the word's done being written, run a autocorrecter
-                        written_string = autocorrect(written_string)
-                if(letter_count > 50 and letter_count < 70):
-                    letter_color = (0,255,0)
-                if(letter_count >= 70):
-                    letter_count = 0
+                        #Only show green, no action
+                        letter_color = (0,255,0)
+                if(time.perf_counter() - letter_time >= TIME_TO_SELECT + TIME_TO_RESET and letter_selected):
+                    #Reset after selected letter
+                    letter_time = time.perf_counter()
+                    letter_selected = False
+                    letter_written = False
             else:
-                letter_count = 0
+                letter_time = time.perf_counter()  
+                letter_selected = False
+                letter_written = False
 
             #Current string to be rendered to the screen
             cv2.putText(image, written_string, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
