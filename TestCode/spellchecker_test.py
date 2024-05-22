@@ -1,3 +1,6 @@
+# CSM Bahar Flagbot Project - Autocorrect Test Code
+# Author: Emily Perry
+
 import autocorrect as ac
 
 # create a dictionary based on the words we want to use
