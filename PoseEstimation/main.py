@@ -181,7 +181,25 @@ semaphore = {
     }
 
 # Create a reverse lookup dictionary
-reverse_semaphore = {v: k for k, v in semaphore.items()}
+# reverse_semaphore = {v: k for k, v in semaphore.items()}
+
+# by hand
+# H is weird
+reverse_semaphore = {
+    "E" : (-135, 0),
+    "F" : (-90, 0),
+    "H" : (45, 90),
+    "L" : (-135, 45),
+    "N" : (-45, 45),
+    "O" : (-225, 90),
+    "P" : (-180, 90),
+    "R" : (-90, 90),
+    "T" : (-180, 135),
+    "U" : (-135,135),
+    "W" : (-90, 225),
+    "Y" : (-90, 135),
+    "End of Word" : (-180, 180),
+}
 
 '''
 End Initalization
