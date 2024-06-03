@@ -15,7 +15,8 @@ long RightPosition=0;
 String command = "";
 int leftAngle = 0;
 int rightAngle = 0;
-string[] parts;
+const int MAX_PARTS = 2;
+String parts[MAX_PARTS];
 
 //Pin definitions
 #define LeftStep 6        // X-Axis step Left Arm
@@ -58,26 +59,36 @@ void setup() {
 
 void loop() {
   // check for incoming serial data
-   if (Serial.available()) {  
-      // read command from serial port
-      command = Serial.readString();  
+  if (Serial.available()) {  
+    // read command from serial port
+    command = Serial.readString();  
 
-      // transform it into a left angle and a right angle
-      parts = input.Split(',');
+    // Split the input string
+    int index = 0;
+    int partIndex = 0;
+    while (index < command.length() && partIndex < MAX_PARTS) {
+      int commaIndex = command.indexOf(',', index);
+      if (commaIndex == -1) {
+        parts[partIndex] = command.substring(index);
+        break;
+      } else {
+        parts[partIndex] = command.substring(index, commaIndex);
+        index = commaIndex + 1;
+      }
+      partIndex++;
+    }
 
-      // Parse the parts into integers
-      leftAngle = int.Parse(parts[0]);
-      rightAngle = int.Parse(parts[1]);
+    // Parse the parts to integers
+    if (partIndex >= 2) { // Ensure there are enough parts
+      int leftAngle = parts[0].toInt();
+      int rightAngle = parts[1].toInt();
 
       // set the target motor positions
       // left motor uses only negative numbers for some reason
       LeftMotor.moveTo(leftAngle*STEPS_PER_DEG);
       RightMotor.moveTo(rightAngle*STEPS_PER_DEG);
-
-      // now move the stepper motors!
-      while(abs(LeftMotor.distanceToGo())>0.0 || abs(RightMotor.distanceToGo())>0.0){
-        LeftMotor.run();
-        RightMotor.run();
-      }
+      MoveSubRoutine();
+    }
+      
    }
 }
