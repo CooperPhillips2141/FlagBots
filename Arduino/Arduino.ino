@@ -52,9 +52,7 @@ void setup() {
     RightMotor.setSpeed(Speed);
 
   //MAKE SURE TO HOME BOTH ARMS HERE BEFORE THE START OF THE MAIN LOOP
-  HomeSubRoutine();
-  
-
+  //HomeSubRoutine();
 }//--(end setup )---
 
 void loop() {

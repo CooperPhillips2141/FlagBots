@@ -142,7 +142,7 @@ TIME_TO_RESET = 0.5
 
 #Setup Arudino Serial connection
 # if not correct, run "$ ls /dev/tty*"
-USB_PORT = "/dev/ttyUSB0"
+USB_PORT = "/dev/ttyACM0"
 
 try:
    usb = serial.Serial(USB_PORT, 9600, timeout=2)
