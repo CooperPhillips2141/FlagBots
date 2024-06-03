@@ -71,7 +71,7 @@ void loop() {
 
       // set the target motor positions
       // left motor uses only negative numbers for some reason
-      LeftMotor.moveTo(leftAngle*STEPS_PER_DEG*-1);
+      LeftMotor.moveTo(leftAngle*STEPS_PER_DEG);
       RightMotor.moveTo(rightAngle*STEPS_PER_DEG);
 
       // now move the stepper motors!
