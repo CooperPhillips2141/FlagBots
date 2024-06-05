@@ -69,6 +69,7 @@ def semaphore_letter(left_angle, right_angle):
         (135, 90) : "Y",
         (315, 90) : "Z",
         (180, 180) : "End of Word",
+        (0,180) : "Reset",
     }
     if ((left,right) in semaphore):
         letter = semaphore[(left,right)] #Opposite way because the robot faces the human - EDIT: now mirroed, not reversed 5/22/24
@@ -113,7 +114,7 @@ written_string = ""
 letter_selected = False
 letter_written = False
 
-TIME_TO_SELECT = 2
+TIME_TO_SELECT = 4
 TIME_TO_RESET = 0.5
 
 #Video Feed
@@ -178,7 +179,6 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_color = (0,0,255)
 
             if(arms_extended):
-                print(letter_time)
                 if(letter == "Invalid" or previous_letter != letter):
                     letter_time = time.perf_counter()
                     letter_selected = False
@@ -190,6 +190,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         if(letter == "End of Word"):
                             # once the word's done being written, run a autocorrecter
                             written_string = autocorrect(written_string)
+                        elif(letter == "Reset"):
+                            written_string = ""
                         else:
                             written_string += letter
                             letter_written = True
