@@ -87,6 +87,7 @@ void loop() {
       RightMotor.moveTo(rightAngle*STEPS_PER_DEG);
       MoveSubRoutine();
     }
-      
+    // Send acknowledgment
+    Serial.println("Arms in place");
    }
 }

@@ -140,7 +140,7 @@ letter_written = False
 TIME_TO_SELECT = 2
 TIME_TO_RESET = 0.5
 
-#Setup Arudino Serial connection
+# Setup Arudino Serial connection
 # if not correct, run "$ ls /dev/tty*"
 USB_PORT = "/dev/ttyACM0"
 
