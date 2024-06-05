@@ -137,7 +137,7 @@ written_string = ""
 letter_selected = False
 letter_written = False
 
-TIME_TO_SELECT = 2
+TIME_TO_SELECT = 4
 TIME_TO_RESET = 0.5
 
 # Setup Arudino Serial connection
@@ -178,6 +178,7 @@ semaphore = {
         (135, 90) : "Y",
         (315, 90) : "Z",
         (180, 180) : "End of Word",
+        (0,180) : "Reset",
     }
 
 # Create a reverse lookup dictionary
@@ -269,7 +270,6 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_color = (0,0,255)
 
             if(arms_extended):
-                print(letter_time)
                 if(letter == "Invalid" or previous_letter != letter):
                     letter_time = time.perf_counter()
                     letter_selected = False
@@ -281,6 +281,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         if(letter == "End of Word"):
                             # since the word is done being written, run the requested command
                             run_command(written_string)
+                        elif(letter == "Reset"):
+                            written_string = ""
                         else:
                             written_string += letter
                             letter_written = True
