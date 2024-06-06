@@ -60,6 +60,7 @@ void loop() {
   if (Serial.available()) {  
     // read command from serial port
     command = Serial.readString();  
+    Serial.println("Command Recieved: " + command);
 
     // Split the input string
     int index = 0;
@@ -75,9 +76,9 @@ void loop() {
       }
       partIndex++;
     }
-
+    int numParts = partIndex + 1;
     // Parse the parts to integers
-    if (partIndex >= 2) { // Ensure there are enough parts
+    if (numParts == MAX_PARTS) { // Ensure there are enough parts
       int leftAngle = parts[0].toInt();
       int rightAngle = parts[1].toInt();
 
@@ -86,8 +87,9 @@ void loop() {
       LeftMotor.moveTo(leftAngle*STEPS_PER_DEG);
       RightMotor.moveTo(rightAngle*STEPS_PER_DEG);
       MoveSubRoutine();
+
+      // Send acknowledgment
+      Serial.println("Arms in place");
     }
-    // Send acknowledgment
-    Serial.println("Arms in place");
    }
 }
