@@ -1,5 +1,5 @@
 # CSM Bahar Flagbot Project - Human Pose Detection
-# Author: Charlie Hagen
+# Authors: Charlie Hagen and Emily Perry
 
 # When run, the sript will create a window with the active capture. To exit, press q.
 
@@ -9,6 +9,7 @@ import numpy as np
 import sys
 import autocorrect as ac
 import time
+import serial
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -41,7 +42,120 @@ def semaphore_letter(left_angle, right_angle):
     #Round the angles to the nearest 45 degrees
     left = (round(left_angle / 45.0) * 45.0) % 360
     right = (round(right_angle / 45.0) * 45.0) % 360
-    semaphore = {
+    if ((left,right) in semaphore):
+        letter = semaphore[(left,right)] #Opposite way because the robot faces the human - EDIT: now mirroed, not reversed 5/22/24
+    else:
+        letter = "Invalid"
+    return letter
+
+# intakes a letter and returns a tuple of angles (left,right)
+def get_semaphore_angles(letter):
+    return reverse_semaphore.get(letter)
+
+'''
+All Command Methods
+'''
+# in this method, the robot signs 'Hello' back
+def hi_command():
+    send_command(get_semaphore_angles('H'))
+    send_command(get_semaphore_angles('E'))
+    send_command(get_semaphore_angles('L'))
+    send_command(get_semaphore_angles('L'))
+    send_command(get_semaphore_angles('O'))
+    send_command(get_semaphore_angles('End of Word'))
+    
+# this method sends commands to the Arduino to move the stepper motors
+# command format: "left_motor_degrees,right_motor_degrees"
+# ex: "35,50"
+# 'command' is a tuple of the two angles
+def send_command(command):
+     # First, take the tuple and turn it into a string
+    command_string_representation = ",".join(map(str, command))
+
+    # now send that to the arduino!
+    usb.write(command_string_representation.encode('utf-8'))
+
+     # now wait for confirmation from the arudino that the arm is in the correct position
+    ack = "not ready"
+    while(ack != "Arms in place"):
+       ack = usb.readline().decode("utf-8").strip()
+    
+# this method validates the command the human wrote and runs the corresponding method
+def run_command(word):
+    # run the autocorrect
+    word = autocorrect(word)
+
+    # make it all lowercase
+    word = word.lower()
+
+    # ensure the word is a real command
+    if word not in command_dict:
+        # do something to indicate the command is not in the command list
+        # remove the print statement once we can do something else useful
+        print("Command not in command list!")
+        return
+    else:
+        # figure out which valid word it was and call that method
+        if word == 'hi':
+            hi_command()
+
+
+'''
+End Command Methods
+'''
+
+'''
+Initialization
+'''
+mp_drawing = mp.solutions.drawing_utils
+mp_pose = mp.solutions.pose
+
+# create a dictionary based on the words we want to use
+# word maps to frequency
+command_dict = {
+    "dance":0.25,
+    "act":0.25,
+    "hi":0.25,
+    "hello":0.25
+}
+
+# make the autocorrect use our dictionary
+autocorrect = ac.Speller(nlp_data=command_dict)
+
+try:
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+except Exception as e:
+    print(f"An error occurred: {e}")
+    sys.exit(1)  # Exit with a non-zero status code
+
+#Pull resolution
+resx = int(cap.get(3))
+resy = int(cap.get(4))
+
+#Set up counters for write logic 
+letter_count = 0
+letter_time = time.perf_counter()
+previous_letter = ""
+written_string = ""
+letter_selected = False
+letter_written = False
+
+TIME_TO_SELECT = 4
+TIME_TO_RESET = 0.5
+
+# Setup Arudino Serial connection
+# if not correct, run "$ ls /dev/tty*"
+USB_PORT = "/dev/ttyACM0"
+
+try:
+   usb = serial.Serial(USB_PORT, 9600, timeout=2)
+except:
+   print("ERROR - Could not open USB serial port.  Please check your port name and permissions.")
+   
+#Semaphore lookup table
+semaphore = {
         (45, 0) : "A",
         (90, 0) : "B",
         (135, 0) : "C",
@@ -71,53 +185,35 @@ def semaphore_letter(left_angle, right_angle):
         (180, 180) : "End of Word",
         (0,180) : "Reset",
     }
-    if ((left,right) in semaphore):
-        letter = semaphore[(left,right)] #Opposite way because the robot faces the human - EDIT: now mirroed, not reversed 5/22/24
-    else:
-        letter = "Invalid"
-    return letter
 
+# Create a reverse lookup dictionary
+# reverse_semaphore = {v: k for k, v in semaphore.items()}
 
-#Initialization
-mp_drawing = mp.solutions.drawing_utils
-mp_pose = mp.solutions.pose
-
-# create a dictionary based on the words we want to use
-# word maps to frequency
-word_dict = {
-    "dance":0.25,
-    "act":0.25,
-    "hi":0.25,
-    "hello":0.25
+# by hand
+# H is weird
+reverse_semaphore = {
+    "E" : (-135, 0),
+    "F" : (-90, 0),
+    "H" : (45, 90),
+    "L" : (-135, 45),
+    "N" : (-45, 45),
+    "O" : (-225, 90),
+    "P" : (-180, 90),
+    "R" : (-90, 90),
+    "T" : (-180, 135),
+    "U" : (-135,135),
+    "W" : (-90, 225),
+    "Y" : (-90, 135),
+    "End of Word" : (0, 0),
 }
 
-# make the autocorrect use our dictionary
-autocorrect = ac.Speller(nlp_data=word_dict)
+'''
+End Initalization
+'''
 
-try:
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-except Exception as e:
-    print(f"An error occurred: {e}")
-    sys.exit(1)  # Exit with a non-zero status code
-
-#Pull resolution
-resx = int(cap.get(3))
-resy = int(cap.get(4))
-
-#Set up counters for write logic 
-letter_count = 0
-letter_time = time.perf_counter()
-previous_letter = ""
-written_string = ""
-letter_selected = False
-letter_written = False
-
-TIME_TO_SELECT = 4
-TIME_TO_RESET = 0.5
-
-#Video Feed
+'''
+Video Feed Loop
+'''
 with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose: #Set detection and tracking confidence threshholds 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -188,8 +284,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         letter_color = (0,255,0)
                         letter_selected = True
                         if(letter == "End of Word"):
-                            # once the word's done being written, run a autocorrecter
-                            written_string = autocorrect(written_string)
+                            # since the word is done being written, run the requested command
+                            run_command(written_string)
                         elif(letter == "Reset"):
                             written_string = ""
                         else:
