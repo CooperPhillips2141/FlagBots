@@ -1,5 +1,5 @@
 # CSM Bahar Flagbot Project - Human Pose Detection
-# Author: Charlie Hagen
+# Authors: Charlie Hagen and Emily Perry
 
 # When run, the sript will create a window with the active capture. To exit, press q.
 
@@ -69,11 +69,16 @@ def hi_command():
 # ex: "35,50"
 # 'command' is a tuple of the two angles
 def send_command(command):
-    # First, take the tuple and turn it into a string
+     # First, take the tuple and turn it into a string
     command_string_representation = ",".join(map(str, command))
 
     # now send that to the arduino!
     usb.write(command_string_representation.encode('utf-8'))
+
+     # now wait for confirmation from the arudino that the arm is in the correct position
+    ack = "not ready"
+    while(ack != "Arms in place"):
+       ack = usb.readline().decode("utf-8").strip()
     
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
@@ -199,7 +204,7 @@ reverse_semaphore = {
     "U" : (-135,135),
     "W" : (-90, 225),
     "Y" : (-90, 135),
-    "End of Word" : (-180, 180),
+    "End of Word" : (0, 0),
 }
 
 '''

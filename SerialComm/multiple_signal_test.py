@@ -1,17 +1,17 @@
 import serial
+import time
 
 def send_command(command):
-    # First, take the tuple and turn it into a string
+     # First, take the tuple and turn it into a string
     command_string_representation = ",".join(map(str, command))
 
     # now send that to the arduino!
     usb.write(command_string_representation.encode('utf-8'))
 
-    # now wait for confirmation from the arudino that the arm is in the correct position
+     # now wait for confirmation from the arudino that the arm is in the correct position
     ack = "not ready"
     while(ack != "Arms in place"):
-       ack = usb.readline().decode("utf-8")
-       print(ack)
+       ack = usb.readline().decode("utf-8").strip()
 
 
 # Main
@@ -26,6 +26,9 @@ except:
    print("ERROR - Could not open USB serial port.  Please check your port name and permissions.")
    print("Exiting program.")
    exit()
+
+# delay to let the arduino finish setting up
+time.sleep(3)
 
 # now make the robot sign "TEST"
 send_command("-180, 135") # T
