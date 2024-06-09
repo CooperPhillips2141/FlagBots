@@ -10,6 +10,7 @@ import sys
 import autocorrect as ac
 import time
 import serial
+from gpiozero import DistanceSensor
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -207,6 +208,10 @@ reverse_semaphore = {
     "End of Word" : (0, 0),
 }
 
+# initialize the ultrasonic sensors with a threshold distance of 1.2 meters (~4 ft)
+ultrasonic_left = DistanceSensor(echo=17, trigger=4, threshold_distance=1.2, max_distance=10)
+ultrasonic_right = DistanceSensor(echo=27, trigger=22, threshold_distance=1.2, max_distance=10)
+
 '''
 End Initalization
 '''
@@ -285,7 +290,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         letter_selected = True
                         if(letter == "End of Word"):
                             # since the word is done being written, run the requested command
-                            run_command(written_string)
+                            if (ultrasonic_left.distance < 1.2 and ultrasonic_right.distance < 1.2):
+                                run_command(written_string)
                         elif(letter == "Reset"):
                             written_string = ""
                         else:
