@@ -289,7 +289,7 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         letter_color = (0,255,0)
                         letter_selected = True
                         if(letter == "End of Word"):
-                            # since the word is done being written, run the requested command
+                            # since the word is done being written, run the requested command if the ultrasonic sensors do not detect anything
                             if (ultrasonic_left.distance < 1.2 and ultrasonic_right.distance < 1.2):
                                 run_command(written_string)
                         elif(letter == "Reset"):
