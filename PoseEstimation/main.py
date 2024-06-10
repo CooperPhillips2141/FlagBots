@@ -64,6 +64,29 @@ def hi_command():
     send_command(get_semaphore_angles('L'))
     send_command(get_semaphore_angles('O'))
     send_command(get_semaphore_angles('End of Word'))
+
+# in this method, the robot pretty much just flails its arms about
+def dance_command():
+    send_command(get_semaphore_angles('U'))
+    send_command(get_semaphore_angles('N'))
+    send_command(get_semaphore_angles('U'))
+    send_command(get_semaphore_angles('N'))
+    send_command(get_semaphore_angles('G'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('G'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('G'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('G'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('Y'))
+    send_command(get_semaphore_angles('M'))
+    send_command(get_semaphore_angles('C'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('Y'))
+    send_command(get_semaphore_angles('M'))
+    send_command(get_semaphore_angles('C'))
+    send_command(get_semaphore_angles('A'))    
     
 # this method sends commands to the Arduino to move the stepper motors
 # command format: "left_motor_degrees,right_motor_degrees"
@@ -84,6 +107,7 @@ def send_command(command):
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
     # run the autocorrect and display new word
+    # this isn't correct yet, please FIX
     word = autocorrect(word)
     cv2.putText(image, word, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
 
@@ -100,6 +124,8 @@ def run_command(word):
         # figure out which valid word it was and call that method
         if word == 'hi':
             hi_command()
+        elif word == 'dance':
+            dance_command()
     return ""
 
 
