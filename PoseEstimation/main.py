@@ -86,7 +86,12 @@ def dance_command():
     send_command(get_semaphore_angles('Y'))
     send_command(get_semaphore_angles('M'))
     send_command(get_semaphore_angles('C'))
-    send_command(get_semaphore_angles('A'))    
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('End of Word'))    
+
+def hello_command():
+    send_command(get_semaphore_angles('H'))
+    send_command(get_semaphore_angles('I'))
     
 # this method sends commands to the Arduino to move the stepper motors
 # command format: "left_motor_degrees,right_motor_degrees"
@@ -126,6 +131,8 @@ def run_command(word):
             hi_command()
         elif word == 'dance':
             dance_command()
+        elif word == 'hello':
+            hello_command()
     return ""
 
 
@@ -221,10 +228,14 @@ semaphore = {
 # by hand
 # H is weird
 reverse_semaphore = {
+    "A" : (0, 45),
+    "C" : (0, 135),
     "E" : (-135, 0),
     "F" : (-90, 0),
+    "G" : (-45, 0),
     "H" : (45, 90),
     "L" : (-135, 45),
+    "M" : (-90, 45),
     "N" : (-45, 45),
     "O" : (-225, 90),
     "P" : (-180, 90),
