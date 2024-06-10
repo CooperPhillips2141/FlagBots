@@ -11,6 +11,7 @@ USB_PORT = "/dev/ttyACM0"  # Arduino Uno WiFi Rev2
 
 
 # Imports
+# make sure to install pyserial, not serial
 import serial
 
 

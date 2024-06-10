@@ -9,6 +9,7 @@ import numpy as np
 import sys
 import autocorrect as ac
 import time
+# make sure to install pyserial, not serial
 import serial
 
 #Angle between three points denormalized
@@ -79,11 +80,15 @@ def send_command(command):
     ack = "not ready"
     while(ack != "Arms in place"):
        ack = usb.readline().decode("utf-8").strip()
+
+    # reset the word for the next input
+    written_string = ""
     
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
     # run the autocorrect
     word = autocorrect(word)
+    written_string = word
 
     # make it all lowercase
     word = word.lower()
