@@ -80,15 +80,12 @@ def send_command(command):
     ack = "not ready"
     while(ack != "Arms in place"):
        ack = usb.readline().decode("utf-8").strip()
-
-    # reset the word for the next input
-    written_string = ""
     
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
-    # run the autocorrect
+    # run the autocorrect and display new word
     word = autocorrect(word)
-    written_string = word
+    cv2.putText(image, word, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
 
     # make it all lowercase
     word = word.lower()
@@ -98,11 +95,12 @@ def run_command(word):
         # do something to indicate the command is not in the command list
         # remove the print statement once we can do something else useful
         print("Command not in command list!")
-        return
+        return word
     else:
         # figure out which valid word it was and call that method
         if word == 'hi':
             hi_command()
+    return ""
 
 
 '''
@@ -290,7 +288,7 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         letter_selected = True
                         if(letter == "End of Word"):
                             # since the word is done being written, run the requested command
-                            run_command(written_string)
+                            written_string = run_command(written_string)
                         elif(letter == "Reset"):
                             written_string = ""
                         else:
