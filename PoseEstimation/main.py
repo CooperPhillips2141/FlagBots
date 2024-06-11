@@ -53,6 +53,22 @@ def semaphore_letter(left_angle, right_angle):
 def get_semaphore_angles(letter):
     return reverse_semaphore.get(letter)
 
+def handle_object_detection():
+    global object_detected_time
+    object_detected = (ultrasonic_left.distance < 1.2 or ultrasonic_right.distance < 1.2)
+    
+    if object_detected:
+        object_detected_time = time.perf_counter()
+        send_command(get_semaphore_angles('End of Word'))
+    
+    if object_detected_time and time.perf_counter() - object_detected_time >= 5:
+        object_detected = (ultrasonic_left.distance < 1.2 or ultrasonic_right.distance < 1.2)
+        if object_detected:
+            object_detected_time = time.perf_counter()
+        else:
+            send_command((-180, 180))
+            object_detected_time = None
+
 '''
 All Command Methods
 '''
@@ -289,9 +305,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                         letter_color = (0,255,0)
                         letter_selected = True
                         if(letter == "End of Word"):
-                            # since the word is done being written, run the requested command if the ultrasonic sensors do not detect anything
-                            if (ultrasonic_left.distance < 1.2 and ultrasonic_right.distance < 1.2):
-                                run_command(written_string)
+                            # since the word is done being written, run the requested command
+                            run_command(written_string)
                         elif(letter == "Reset"):
                             written_string = ""
                         else:
@@ -309,6 +324,8 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_time = time.perf_counter()  
                 letter_selected = False
                 letter_written = False
+
+            handle_object_detection()
 
             #Current string to be rendered to the screen
             cv2.putText(image, written_string, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
