@@ -53,18 +53,25 @@ def semaphore_letter(left_angle, right_angle):
 def get_semaphore_angles(letter):
     return reverse_semaphore.get(letter)
 
+# stops and resets the robot if an object is detected within 1.2 meters (~4 ft)
 def handle_object_detection():
     global object_detected_time
     object_detected = (ultrasonic_left.distance < 1.2 or ultrasonic_right.distance < 1.2)
     
+    # if an object is detected, note the time and raise the robots arms
     if object_detected:
         object_detected_time = time.perf_counter()
         send_command(get_semaphore_angles('End of Word'))
     
+    # if it has been 5 seconds since the object was detected, check if the object is still there
     if object_detected_time and time.perf_counter() - object_detected_time >= 5:
         object_detected = (ultrasonic_left.distance < 1.2 or ultrasonic_right.distance < 1.2)
+        
+        # if the object is still there, reset the timer
         if object_detected:
             object_detected_time = time.perf_counter()
+
+        # if the object is no longer there, lower the robots arms
         else:
             send_command((-180, 180))
             object_detected_time = None
@@ -325,6 +332,7 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_selected = False
                 letter_written = False
 
+            # stops and resets the robot if an object is detected within 1.2 meters (~4 ft)
             handle_object_detection()
 
             #Current string to be rendered to the screen
