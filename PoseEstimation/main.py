@@ -92,6 +92,7 @@ def dance_command():
 def hello_command():
     send_command(get_semaphore_angles('H'))
     send_command(get_semaphore_angles('I'))
+    send_command(get_semaphore_angles('End of Word'))
     
 # this method sends commands to the Arduino to move the stepper motors
 # command format: "left_motor_degrees,right_motor_degrees"
@@ -113,11 +114,9 @@ def send_command(command):
 def run_command(word):
     # run the autocorrect and display new word
     # this isn't correct yet, please FIX
+    word = word.lower()
     word = autocorrect(word)
     cv2.putText(image, word, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
-
-    # make it all lowercase
-    word = word.lower()
 
     # ensure the word is a real command
     if word not in command_dict:
@@ -178,8 +177,8 @@ written_string = ""
 letter_selected = False
 letter_written = False
 
-TIME_TO_SELECT = 4
-TIME_TO_RESET = 0.5
+TIME_TO_SELECT = 3
+TIME_TO_RESET = 3
 
 # Setup Arudino Serial connection
 # if not correct, run "$ ls /dev/tty*"
@@ -229,6 +228,7 @@ semaphore = {
 # H is weird
 reverse_semaphore = {
     "A" : (0, 45),
+    "B" : (0, 90),
     "C" : (0, 135),
     "E" : (-135, 0),
     "F" : (-90, 0),
