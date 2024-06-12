@@ -141,8 +141,8 @@ def get_arm_angles():
                 left_shoulder_angle = 360 - left_shoulder_angle #Modify the left shoulder angle
             else:
                 right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
-            # now return the angles for processing
-            return (right_shoulder_angle, left_shoulder_angle)
+            # now return the angles for processing (the right angle has to be negative)
+            return (-1 * right_shoulder_angle, left_shoulder_angle)
         except:
             return (0,0)
     
