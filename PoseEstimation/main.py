@@ -101,7 +101,7 @@ def mirror_command():
         # get left and right arm angles then send that data to the ardunio
         send_command(get_arm_angles())
         # sleep for a quarter of a second
-        time.sleep(0.25)
+        time.sleep(1)
     # return the arms back to down
     send_command(get_semaphore_angles('End of Word'))
 
