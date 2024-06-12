@@ -93,6 +93,58 @@ def hello_command():
     send_command(get_semaphore_angles('H'))
     send_command(get_semaphore_angles('I'))
     send_command(get_semaphore_angles('End of Word'))
+
+def mirror_command():
+    # start a timer (this method will last for 30 seconds)
+    start_time = time.time()
+    while(time.time() - start_time < 30):
+        # get left and right arm angles then send that data to the ardunio
+        send_command(get_arm_angles())
+    # return the arms back to down
+    send_command(get_semaphore_angles('End of Word'))
+
+# detects the arm angles of the person and returns a tuple of the angles like (right,left)
+def get_arm_angles():
+    with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose:
+        ret, frame = cap.read()
+
+        #Recolor image into RGB format
+        frame = cv2.flip(frame, 1)
+        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        image.flags.writeable = False
+
+        #Process the image, detect pose
+        results = pose.process(image)
+
+        #Recolor image into BGR format
+        image.flags.writeable = True
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        #Extract the landmarks
+        try:
+            landmarks = results.pose_landmarks.landmark
+
+            left_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            left_wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+            left_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y] 
+
+            right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
+            right_wrist = [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
+            right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y] 
+
+            #Calculate relevant angles
+            left_shoulder_angle = calculate_angle(left_hip, left_shoulder, left_wrist)
+            right_shoulder_angle = calculate_angle(right_hip, right_shoulder, right_wrist)
+
+            #Calculate if the person is facing the camera
+            if(right_shoulder[0] < left_shoulder[0]):
+                left_shoulder_angle = 360 - left_shoulder_angle #Modify the left shoulder angle
+            else:
+                right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
+            # now return the angles for processing
+            return (right_shoulder_angle, left_shoulder_angle)
+        except:
+            return (0,0)
     
 # this method sends commands to the Arduino to move the stepper motors
 # command format: "left_motor_degrees,right_motor_degrees"
@@ -113,10 +165,8 @@ def send_command(command):
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
     # run the autocorrect and display new word
-    # this isn't correct yet, please FIX
     word = word.lower()
     word = autocorrect(word)
-    cv2.putText(image, word, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
 
     # ensure the word is a real command
     if word not in command_dict:
@@ -132,6 +182,8 @@ def run_command(word):
             dance_command()
         elif word == 'hello':
             hello_command()
+        elif word == 'mirror':
+            mirror_command()
     return ""
 
 
@@ -149,9 +201,9 @@ mp_pose = mp.solutions.pose
 # word maps to frequency
 command_dict = {
     "dance":0.25,
-    "act":0.25,
+    "mirror":0.25,
     "hi":0.25,
-    "hello":0.25
+    "hello":0.25,
 }
 
 # make the autocorrect use our dictionary

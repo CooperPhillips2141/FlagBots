@@ -11,5 +11,5 @@ word_dict = {
 
 # make the autocorrect use our dictionary
 spell = ac.Speller(nlp_data=word_dict)
-print(spell("dancer dance acr ho hi"))
+print(spell("dancer donce acr ho hi"))
 print("autocorrected")
