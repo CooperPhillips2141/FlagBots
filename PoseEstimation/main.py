@@ -61,6 +61,7 @@ def handle_object_detection():
     # if an object is detected, note the time and raise the robots arms
     if object_detected:
         object_detected_time = time.perf_counter()
+        print("Object detected! Raising arms")
         send_command(get_semaphore_angles('End of Word'))
     
     # if it has been 5 seconds since the object was detected, check if the object is still there
@@ -73,6 +74,7 @@ def handle_object_detection():
 
         # if the object is no longer there, lower the robots arms
         else:
+            print("Object no longer detected! Lowering arms")
             send_command((-180, 180))
             object_detected_time = None
 
