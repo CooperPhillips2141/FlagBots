@@ -364,7 +364,13 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
             cv2.putText(image, "{:.1f}".format(right_shoulder_angle), tuple(np.multiply(right_shoulder, [resx, resy]).astype(int)),cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,255,255), 2, cv2.LINE_AA)
             
             text_size = cv2.getTextSize(letter, cv2.FONT_HERSHEY_SIMPLEX, 1.5, 2)
-            letter_coordinates = (int(resx * center[0] - text_size[0][0]/2), int(resy * center[1] - text_size[0][1]/2))
+            letter_coordinates = (int(resx * center[0] - text_size[0][0]/2), int(resy * center[1] + text_size[0][1]/2))
+
+            padding_px = 25
+            letter_coordinates_TL = (int(resx * center[0] + text_size[0][0]/2 + padding_px), int(resy * center[1] - text_size[0][1]/2 - padding_px))
+            letter_coordinates_TR = (int(resx * center[0] - text_size[0][0]/2 - padding_px), int(resy * center[1] + text_size[0][1]/2 + padding_px))
+
+            cv2.rectangle(image, letter_coordinates_TL, letter_coordinates_TR, (30,30,30), -1)
             cv2.putText(image, letter, letter_coordinates,cv2.FONT_HERSHEY_SIMPLEX, 1.5, letter_color, 2, cv2.LINE_AA)
             
             previous_letter = letter
