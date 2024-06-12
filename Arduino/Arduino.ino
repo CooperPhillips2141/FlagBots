@@ -3,10 +3,10 @@
 const int STEPS_PER_DEG = 17;     
 String InputChar;
 int MaxSpeed=1000;
-int Speed=100; //was 200
+int Speed=1000; //was 800
 int var = 0;
 int LetterDelay = 2500; //was1500; 5000 for letter and arm position verification
-int Acceleration=500; //was 1000
+int Acceleration=1500; //was 1000
 int JogStepSize =1;
 int XLimit=1;
 int ZLimit=2;

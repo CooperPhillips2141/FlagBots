@@ -95,9 +95,9 @@ def hello_command():
     send_command(get_semaphore_angles('End of Word'))
 
 def mirror_command():
-    # start a timer (this method will last for 30 seconds)
+    # start a timer (this method will last for 60 seconds)
     start_time = time.time()
-    while(time.time() - start_time < 30):
+    while(time.time() - start_time < 60):
         # get left and right arm angles then send that data to the ardunio
         send_command(get_arm_angles())
     # return the arms back to down
@@ -105,54 +105,54 @@ def mirror_command():
 
 # detects the arm angles of the person and returns a tuple of the angles like (left, right)
 def get_arm_angles():
-    with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose:
-        ret, frame = cap.read()
+    frame = cap.read()
 
-        #Recolor image into RGB format
-        frame = cv2.flip(frame, 1)
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False
+    #Recolor image into RGB format
+    frame = cv2.flip(frame, 1)
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    image.flags.writeable = False
 
-        #Process the image, detect pose
-        results = pose.process(image)
+    #Process the image, detect pose
+    results = pose.process(image)
 
-        #Recolor image into BGR format
-        image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    #Recolor image into BGR format
+    image.flags.writeable = True
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        #Extract the landmarks
-        try:
-            landmarks = results.pose_landmarks.landmark
+    #Extract the landmarks
+    try:
+        landmarks = results.pose_landmarks.landmark
 
-            left_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-            left_wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
-            left_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y] 
+        left_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+        left_wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+        left_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y] 
 
-            right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
-            right_wrist = [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
-            right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y] 
+        right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
+        right_wrist = [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
+        right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y] 
 
-            #Calculate relevant angles
-            left_shoulder_angle = calculate_angle(left_hip, left_shoulder, left_wrist)
-            right_shoulder_angle = calculate_angle(right_hip, right_shoulder, right_wrist)
+        #Calculate relevant angles
+        left_shoulder_angle = calculate_angle(left_hip, left_shoulder, left_wrist)
+        right_shoulder_angle = calculate_angle(right_hip, right_shoulder, right_wrist)
 
-            #Calculate if the person is facing the camera
-            if(right_shoulder[0] < left_shoulder[0]):
-                left_shoulder_angle = 360 - left_shoulder_angle #Modify the left shoulder angle
-            else:
-                right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
-            # now return the angles for processing (the right angle has to be negative)
-            if (right_shoulder_angle > 180 and right_shoulder_angle < 270):
-                right_shoulder_angle = 180
-            elif (right_shoulder_angle >= 270):
-                right_shoulder_angle = 0
-            if (left_shoulder_angle > 180 and left_shoulder_angle < 270):
-                left_shoulder_angle = 180
-            elif (left_shoulder_angle >=270):
-                left_shoulder_angle = 0
-            return (-1 * left_shoulder_angle, right_shoulder_angle)
-        except:
-            return (0,0)
+        #Calculate if the person is facing the camera
+        if(right_shoulder[0] < left_shoulder[0]):
+            left_shoulder_angle = 360 - left_shoulder_angle #Modify the left shoulder angle
+        else:
+            right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
+        
+        # now return the angles for processing (the right angle has to be negative)
+        if (right_shoulder_angle > 180 and right_shoulder_angle < 270):
+            right_shoulder_angle = 180
+        elif (right_shoulder_angle >= 270):
+            right_shoulder_angle = 0
+        if (left_shoulder_angle > 180 and left_shoulder_angle < 270):
+            left_shoulder_angle = 180
+        elif (left_shoulder_angle >=270):
+            left_shoulder_angle = 0
+        return (-1 * left_shoulder_angle, right_shoulder_angle)
+    except:
+        return (0,0)
     
 # this method sends commands to the Arduino to move the stepper motors
 # command format: "left_motor_degrees,right_motor_degrees"
