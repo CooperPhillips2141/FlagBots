@@ -103,7 +103,7 @@ def mirror_command():
     # return the arms back to down
     send_command(get_semaphore_angles('End of Word'))
 
-# detects the arm angles of the person and returns a tuple of the angles like (right,left)
+# detects the arm angles of the person and returns a tuple of the angles like (left, right)
 def get_arm_angles():
     with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose:
         ret, frame = cap.read()
@@ -150,7 +150,7 @@ def get_arm_angles():
                 left_shoulder_angle = 180
             elif (left_shoulder_angle >=270):
                 left_shoulder_angle = 0
-            return (-1 * right_shoulder_angle, left_shoulder_angle)
+            return (-1 * left_shoulder_angle, right_shoulder_angle)
         except:
             return (0,0)
     
@@ -237,8 +237,8 @@ written_string = ""
 letter_selected = False
 letter_written = False
 
-TIME_TO_SELECT = 3
-TIME_TO_RESET = 3
+TIME_TO_SELECT = 2
+TIME_TO_RESET = 1
 
 # Setup Arudino Serial connection
 # if not correct, run "$ ls /dev/tty*"
