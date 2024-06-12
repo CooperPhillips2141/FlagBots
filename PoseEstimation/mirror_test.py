@@ -1,16 +1,14 @@
-# CSM Bahar Flagbot Project - Human Pose Detection
-# Authors: Charlie Hagen and Emily Perry
-
-# When run, the sript will create a window with the active capture. To exit, press q.
-
 import mediapipe as mp
 import cv2
 import numpy as np
 import sys
 import autocorrect as ac
 import time
-# make sure to install pyserial, not serial
-import serial
+
+
+'''
+METHODS
+'''
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -49,59 +47,23 @@ def semaphore_letter(left_angle, right_angle):
         letter = "Invalid"
     return letter
 
-# intakes a letter and returns a tuple of angles (left,right)
-def get_semaphore_angles(letter):
-    return reverse_semaphore.get(letter)
+# this method validates the command the human wrote and runs the corresponding method
+def run_command(word):
+    # run the autocorrect and display new word
+    word = word.lower()
+    word = autocorrect(word)
 
-'''
-All Command Methods
-'''
-# in this method, the robot signs 'Hello' back
-def hi_command():
-    send_command(get_semaphore_angles('H'))
-    send_command(get_semaphore_angles('E'))
-    send_command(get_semaphore_angles('L'))
-    send_command(get_semaphore_angles('L'))
-    send_command(get_semaphore_angles('O'))
-    send_command(get_semaphore_angles('End of Word'))
-
-# in this method, the robot pretty much just flails its arms about
-def dance_command():
-    send_command(get_semaphore_angles('U'))
-    send_command(get_semaphore_angles('N'))
-    send_command(get_semaphore_angles('U'))
-    send_command(get_semaphore_angles('N'))
-    send_command(get_semaphore_angles('G'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('G'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('G'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('G'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('Y'))
-    send_command(get_semaphore_angles('M'))
-    send_command(get_semaphore_angles('C'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('Y'))
-    send_command(get_semaphore_angles('M'))
-    send_command(get_semaphore_angles('C'))
-    send_command(get_semaphore_angles('A'))
-    send_command(get_semaphore_angles('End of Word'))    
-
-def hello_command():
-    send_command(get_semaphore_angles('H'))
-    send_command(get_semaphore_angles('I'))
-    send_command(get_semaphore_angles('End of Word'))
-
-def mirror_command():
-    # start a timer (this method will last for 30 seconds)
-    start_time = time.time()
-    while(time.time() - start_time < 30):
-        # get left and right arm angles then send that data to the ardunio
-        send_command(get_arm_angles())
-    # return the arms back to down
-    send_command(get_semaphore_angles('End of Word'))
+    # ensure the word is a real command
+    if word not in command_dict:
+        # do something to indicate the command is not in the command list
+        # remove the print statement once we can do something else useful
+        print("Command not in command list!")
+        return word
+    else:
+        # figure out which valid word it was and call that method
+        if word == 'm':
+            mirror_command()
+    return ""
 
 # detects the arm angles of the person and returns a tuple of the angles like (right,left)
 def get_arm_angles():
@@ -142,65 +104,19 @@ def get_arm_angles():
             else:
                 right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
             # now return the angles for processing (the right angle has to be negative)
-            if (right_shoulder_angle > 180 and right_shoulder_angle < 270):
-                right_shoulder_angle = 180
-            elif (right_shoulder_angle >= 270):
-                right_shoulder_angle = 0
-            if (left_shoulder_angle > 180 and left_shoulder_angle < 270):
-                left_shoulder_angle = 180
-            elif (left_shoulder_angle >=270):
-                left_shoulder_angle = 0
             return (-1 * right_shoulder_angle, left_shoulder_angle)
         except:
             return (0,0)
-    
-# this method sends commands to the Arduino to move the stepper motors
-# command format: "left_motor_degrees,right_motor_degrees"
-# ex: "35,50"
-# 'command' is a tuple of the two angles
-def send_command(command):
-     # First, take the tuple and turn it into a string
-    command_string_representation = ",".join(map(str, command))
-
-    # now send that to the arduino!
-    usb.write(command_string_representation.encode('utf-8'))
-
-     # now wait for confirmation from the arudino that the arm is in the correct position
-    ack = "not ready"
-    while(ack != "Arms in place"):
-       ack = usb.readline().decode("utf-8").strip()
-    
-# this method validates the command the human wrote and runs the corresponding method
-def run_command(word):
-    # run the autocorrect and display new word
-    word = word.lower()
-    word = autocorrect(word)
-
-    # ensure the word is a real command
-    if word not in command_dict:
-        # do something to indicate the command is not in the command list
-        # remove the print statement once we can do something else useful
-        print("Command not in command list!")
-        return word
-    else:
-        # figure out which valid word it was and call that method
-        if word == 'hi':
-            hi_command()
-        elif word == 'dance':
-            dance_command()
-        elif word == 'hello':
-            hello_command()
-        elif word == 'mirror':
-            mirror_command()
-    return ""
-
+        
+def mirror_command():
+    # start a timer (this method will last for 30 seconds)
+    start_time = time.time()
+    while(time.time() - start_time < 30):
+        # get left and right arm angles then send that data to the ardunio
+        print(get_arm_angles())
 
 '''
-End Command Methods
-'''
-
-'''
-Initialization
+INIT
 '''
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -208,10 +124,7 @@ mp_pose = mp.solutions.pose
 # create a dictionary based on the words we want to use
 # word maps to frequency
 command_dict = {
-    "dance":0.25,
-    "mirror":0.25,
-    "hi":0.25,
-    "hello":0.25,
+    "r": 1
 }
 
 # make the autocorrect use our dictionary
@@ -240,15 +153,6 @@ letter_written = False
 TIME_TO_SELECT = 3
 TIME_TO_RESET = 3
 
-# Setup Arudino Serial connection
-# if not correct, run "$ ls /dev/tty*"
-USB_PORT = "/dev/ttyACM0"
-
-try:
-   usb = serial.Serial(USB_PORT, 9600, timeout=2)
-except:
-   print("ERROR - Could not open USB serial port.  Please check your port name and permissions.")
-   
 #Semaphore lookup table
 semaphore = {
         (45, 0) : "A",
@@ -280,37 +184,6 @@ semaphore = {
         (180, 180) : "End of Word",
         (0,180) : "Reset",
     }
-
-# Create a reverse lookup dictionary
-# reverse_semaphore = {v: k for k, v in semaphore.items()}
-
-# by hand
-# H is weird
-reverse_semaphore = {
-    "A" : (0, 45),
-    "B" : (0, 90),
-    "C" : (0, 135),
-    "E" : (-135, 0),
-    "F" : (-90, 0),
-    "G" : (-45, 0),
-    "H" : (45, 90),
-    "I" : (45, 135),
-    "L" : (-135, 45),
-    "M" : (-90, 45),
-    "N" : (-45, 45),
-    "O" : (-225, 90),
-    "P" : (-180, 90),
-    "R" : (-90, 90),
-    "T" : (-180, 135),
-    "U" : (-135,135),
-    "W" : (-90, 225),
-    "Y" : (-90, 135),
-    "End of Word" : (0, 0),
-}
-
-'''
-End Initalization
-'''
 
 '''
 Video Feed Loop
