@@ -7,7 +7,7 @@ import mediapipe as mp
 import cv2
 import numpy as np
 import sys
-import autocorrect as ac
+from spellchecker import SpellChecker
 import time
 # make sure to install pyserial, not serial
 import serial
@@ -184,10 +184,10 @@ def send_command(command):
 def run_command(word):
     # run the autocorrect and display new word
     word = word.lower()
-    word = autocorrect(word)
+    word = spell.correction(word)
 
     # ensure the word is a real command
-    if word not in command_dict:
+    if word not in custom_words:
         # do something to indicate the command is not in the command list
         # remove the print statement once we can do something else useful
         print("Command not in command list!")
@@ -217,17 +217,12 @@ Initialization
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-# create a dictionary based on the words we want to use
-# word maps to frequency
-command_dict = {
-    "dance":0.25,
-    "mirror":0.25,
-    "hi":0.25,
-    "hello":0.25,
-}
+# Initialize the spellchecker without a default language
+spell = SpellChecker(language=None)
 
-# make the autocorrect use our dictionary
-autocorrect = ac.Speller(nlp_data=command_dict)
+# Custom dictionary words
+custom_words = ["dance", "hi", "hello", "mirror"]
+spell.word_frequency.load_words(custom_words)
 
 try:
     cap = cv2.VideoCapture(0)
