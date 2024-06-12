@@ -113,6 +113,18 @@ def mines_command():
     send_command(get_semaphore_angles('A'))
     send_command(get_semaphore_angles('End of Word'))
 
+# hot to go tik tok dance
+def hot_command():
+    send_command((-180, 180)) # H
+    send_command((-200, 200)) # O
+    send_command((-90, 90))   # T
+    send_command((-90, 90))   # T
+    send_command((-200, 200)) # O
+    send_command((-180, 90)) # O
+    send_command((-200, 200)) # O
+
+    send_command(get_semaphore_angles('End of Word'))
+
 # detects the arm angles of the person and returns a tuple of the angles like (left, right)
 def get_arm_angles():
     with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose:
@@ -204,6 +216,8 @@ def run_command(word):
             mirror_command()
         elif word == 'mines':
             mines_command()
+        elif word == 'hot':
+            hot_command()
     return ""
 
 
@@ -221,7 +235,7 @@ mp_pose = mp.solutions.pose
 spell = SpellChecker(language=None)
 
 # Custom dictionary words
-custom_words = ["dance", "hi", "hello", "mirror"]
+custom_words = ["dance", "hi", "hello", "mirror", "mines", "hot"]
 spell.word_frequency.load_words(custom_words)
 
 try:
