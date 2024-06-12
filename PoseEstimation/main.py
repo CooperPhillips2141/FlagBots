@@ -116,13 +116,12 @@ def mines_command():
 # hot to go tik tok dance
 def hot_command():
     send_command((-180, 180)) # H
-    send_command((-200, 200)) # O
+    send_command((-190, 190)) # O
     send_command((-90, 90))   # T
     send_command((-90, 90))   # T
-    send_command((-200, 200)) # O
-    send_command((-180, 90)) # O
-    send_command((-200, 200)) # O
-
+    send_command((-190, 190)) # O
+    send_command((-90, 180)) # G
+    send_command((-190, 190)) # O
     send_command(get_semaphore_angles('End of Word'))
 
 # detects the arm angles of the person and returns a tuple of the angles like (left, right)
