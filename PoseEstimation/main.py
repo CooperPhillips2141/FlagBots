@@ -103,10 +103,20 @@ def mirror_command():
     # return the arms back to down
     send_command(get_semaphore_angles('End of Word'))
 
+def mines_command():
+    send_command(get_semaphore_angles('H'))
+    send_command(get_semaphore_angles('E'))
+    send_command(get_semaphore_angles('L'))
+    send_command(get_semaphore_angles('L'))
+    send_command(get_semaphore_angles('U'))
+    send_command(get_semaphore_angles('V'))
+    send_command(get_semaphore_angles('A'))
+    send_command(get_semaphore_angles('End of Word'))
+
 # detects the arm angles of the person and returns a tuple of the angles like (left, right)
 def get_arm_angles():
     with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) as pose:
-        frame = cap.read()
+        ret, frame = cap.read()
 
         #Recolor image into RGB format
         frame = cv2.flip(frame, 1)
@@ -141,7 +151,6 @@ def get_arm_angles():
                 left_shoulder_angle = 360 - left_shoulder_angle #Modify the left shoulder angle
             else:
                 right_shoulder_angle = 360 - right_shoulder_angle #Modify the right shoulder angle
-            
             # now return the angles for processing (the right angle has to be negative)
             if (right_shoulder_angle > 180 and right_shoulder_angle < 270):
                 right_shoulder_angle = 180
@@ -193,6 +202,8 @@ def run_command(word):
             hello_command()
         elif word == 'mirror':
             mirror_command()
+        elif word == 'mines':
+            mines_command()
     return ""
 
 
