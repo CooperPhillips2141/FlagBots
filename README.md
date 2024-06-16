@@ -9,6 +9,15 @@ Pi and pick the one that looks something like `ttyACM0` or something without a n
 `USB_PORT` variable with that (in `main.py`). If that still doesn't work, make sure to give the user
 usb port permissions.
 
+To get the program to run on startup, we use a .desktop file on the RPi. This is what's in there:
+```
+[Desktop Entry]
+Type=Application
+Name=My Fullscreen App
+Exec=/bin/bash -c 'source /path/to/venv/bin/activate && /usr/bin/python3 /path/to/your/script.py --fullscreen'
+StartupNotify=false
+```
+
 On the Arduino, load the `Arduino/Arduino.ino` file (The `OriginalBots` code is what was originally
 coded onto the robots for the art installation.) and connect to the RPi via usb.
 
