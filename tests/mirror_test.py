@@ -132,8 +132,8 @@ autocorrect = ac.Speller(nlp_data=command_dict)
 
 try:
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1440)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 810)
 except Exception as e:
     print(f"An error occurred: {e}")
     sys.exit(1)  # Exit with a non-zero status code

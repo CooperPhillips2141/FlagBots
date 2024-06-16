@@ -43,13 +43,13 @@ void setup() {
   Serial.begin(9600);// set up Serial library at 9600 bps
   Serial.println("Flag Bot - serial port connected");
   
-   // Configure each steppe
-    LeftMotor.setMaxSpeed(MaxSpeed);
-    LeftMotor.setAcceleration(Acceleration);
-    LeftMotor.setSpeed(Speed);
-    RightMotor.setMaxSpeed(MaxSpeed);
-    RightMotor.setAcceleration(Acceleration);
-    RightMotor.setSpeed(Speed);
+  // Configure each steppe
+  LeftMotor.setMaxSpeed(MaxSpeed);
+  LeftMotor.setAcceleration(Acceleration);
+  LeftMotor.setSpeed(Speed);
+  RightMotor.setMaxSpeed(MaxSpeed);
+  RightMotor.setAcceleration(Acceleration);
+  RightMotor.setSpeed(Speed);
 
   //MAKE SURE TO HOME BOTH ARMS HERE BEFORE THE START OF THE MAIN LOOP
   //HomeSubRoutine();

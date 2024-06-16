@@ -8,7 +8,7 @@ void homeLeft() {
     //set move based on which arm is to be homed
     //test Left arm
     Serial.println("Started on wedge...");
-    LeftMotor.move(-180*STEPS_PER_DEG);
+    LeftMotor.moveTo(180*STEPS_PER_DEG);
     //add in SW debouncing to ensure we find the edge of the ramp
     boolean debounced = false;
     while(!debounced){
@@ -22,7 +22,7 @@ void homeLeft() {
         debounced = true;
         break;
       }
-      LeftMotor.move(-180*STEPS_PER_DEG);
+      LeftMotor.move(180*STEPS_PER_DEG);
     }
     
     Serial.println("Limit reached!!");

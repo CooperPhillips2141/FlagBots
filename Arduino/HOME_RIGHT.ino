@@ -7,7 +7,7 @@ void homeRight() {
   if(RThomeVal == 0){ //sensor on wedge
     //set move based on which arm is to be homed
     Serial.println("Started on wedge...");
-    RightMotor.move(180*STEPS_PER_DEG);
+    RightMotor.move(-180*STEPS_PER_DEG);
     //add in SW debouncing to ensure we find the edge of the ramp
     boolean debounced = false;
     while(!debounced){
@@ -21,7 +21,7 @@ void homeRight() {
         debounced = true;
         break;
       }
-      RightMotor.move(180*STEPS_PER_DEG);
+      RightMotor.move(-180*STEPS_PER_DEG);
     }
     
     //try a different while loop type
