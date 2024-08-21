@@ -50,8 +50,9 @@ def semaphore_letter(left_angle, right_angle):
     return letter
 
 # intakes a letter and returns a tuple of angles (left,right)
+# defaults to both arms down if letter cannot be found
 def get_semaphore_angles(letter):
-    return reverse_semaphore.get(letter)
+    return reverse_semaphore.get(letter, (0,0))
 
 '''
 All Command Methods
