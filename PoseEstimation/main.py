@@ -7,6 +7,7 @@ import mediapipe as mp
 import cv2
 import numpy as np
 import sys
+# make sure to install pyspellchecker, not spellchecker
 from spellchecker import SpellChecker
 import time
 # make sure to install pyserial, not serial
@@ -181,16 +182,19 @@ def get_arm_angles():
 # ex: "35,50"
 # 'command' is a tuple of the two angles
 def send_command(command):
-     # First, take the tuple and turn it into a string
+    # take the tuple and turn it into a string
     command_string_representation = ",".join(map(str, command))
 
-    # now send that to the arduino!
+    # send that to the arduino!
     usb.write(command_string_representation.encode('utf-8'))
 
-     # now wait for confirmation from the arudino that the arm is in the correct position
+    # wait for confirmation from the arudino that the arm is in the correct position
     ack = "not ready"
     while(ack != "Arms in place"):
        ack = usb.readline().decode("utf-8").strip()
+
+    # pause for a second so that the human can interpret the letter
+    time.sleep(4)
     
 # this method validates the command the human wrote and runs the corresponding method
 def run_command(word):
