@@ -12,6 +12,11 @@ from spellchecker import SpellChecker
 import time
 # make sure to install pyserial, not serial
 import serial
+from gpiozero import DigitalInputDevice
+
+# Initialize motion sensors as digital input devices on GPIO pins
+motion_left = DigitalInputDevice(26)
+motion_right = DigitalInputDevice(4)
 
 #Angle between three points denormalized
 def calculate_angle(a,b,c):
@@ -54,6 +59,30 @@ def semaphore_letter(left_angle, right_angle):
 # defaults to both arms down if letter cannot be found
 def get_semaphore_angles(letter):
     return reverse_semaphore.get(letter, (0,0))
+
+def handle_object_detection():
+    global object_detected_time
+    object_detected = (motion_left or motion_right)
+    
+    # if an object is detected, note the time and raise the robots arms
+    if object_detected:
+        object_detected_time = time.perf_counter()
+        print("Object detected! Raising arms")
+        send_command(get_semaphore_angles('End of Word'))
+    
+    # if it has been 5 seconds since the object was detected, check if the object is still there
+    if object_detected_time and time.perf_counter() - object_detected_time >= 5:
+        object_detected = (motion_left or motion_right)
+        
+        # if the object is still there, reset the timer
+        if object_detected:
+            object_detected_time = time.perf_counter()
+
+        # if the object is no longer there, lower the robots arms
+        else:
+            print("Object no longer detected! Lowering arms")
+            send_command((-180, 180))
+            object_detected_time = None
 
 '''
 All Command Methods
@@ -438,6 +467,9 @@ with mp_pose.Pose(min_detection_confidence = 0.9, min_tracking_confidence=0.8) a
                 letter_selected = False
                 letter_written = False
 
+            # stops and resets the robot if an object is detected too close to arms
+            handle_object_detection()
+            
             #Current string to be rendered to the screen
             cv2.putText(image, written_string, (0,resy-100), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255,100,0), 2, cv2.LINE_AA)
 
